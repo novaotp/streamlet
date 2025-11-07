@@ -1,0 +1,7 @@
+localhost {
+    tls internal
+	encode gzip
+
+    reverse_proxy /api* server:4000
+    reverse_proxy app:5173
+}

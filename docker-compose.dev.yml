@@ -1,0 +1,75 @@
+services:
+  app:
+    container_name: streamlet-app
+    build:
+      context: ./app
+      dockerfile: Dockerfile.dev
+    command: [ "./entrypoint.dev.sh" ]
+    volumes:
+      - ./app:/app
+    networks:
+      - caddy-network
+    ports:
+      - 5173:5173
+    depends_on:
+      db:
+        condition: service_healthy
+
+  server:
+    container_name: streamlet-server
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    command: [ "./entrypoint.dev.sh" ]
+    env_file:
+      - .env
+    volumes:
+      - ./server:/app
+    networks:
+      - caddy-network
+      - db-network
+    ports:
+      - 4000:4000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: streamlet-db
+    image: postgres:18.0
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks:
+      - db-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+
+  caddy:
+    container_name: streamlet-caddy
+    image: caddy:2.10
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - caddy-network
+    volumes:
+      - ./Caddyfile.dev:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  postgres-data:
+  caddy-data:
+  caddy-config:
+
+
+networks:
+  caddy-network:
+  db-network:
