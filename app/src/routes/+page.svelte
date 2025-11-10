@@ -1,17 +1,11 @@
 <script lang="ts">
-    async function getPing() {
-        const response = await fetch('/api/ping', {
-            headers: {
-                "Accept": "application/json"
-            }
-        });
+    let { data } = $props();
 
-        const result = await response.json();
-
-        return result.message as string;
-    }
+    $inspect(data.user)
 </script>
 
-{#await getPing() then message}
-    <p>received : {message}</p>
-{/await}
+<svelte:head>
+    <title>Streamlet</title>
+</svelte:head>
+
+<p>show videos here</p>

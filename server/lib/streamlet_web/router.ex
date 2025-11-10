@@ -8,7 +8,11 @@ defmodule StreamletWeb.Router do
   scope "/api", StreamletWeb do
     pipe_through :api
 
-    get "/ping", PingController, :ping
+    post "/auth/register", AuthController, :register
+    post "/auth/login", AuthController, :login
+    post "/auth/logout", AuthController, :logout
+
+    get "/users/me", UserController, :me
   end
 
   # Enable LiveDashboard in development
