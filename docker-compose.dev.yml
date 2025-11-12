@@ -28,6 +28,7 @@ services:
     networks:
       - caddy-network
       - db-network
+      - s3-network
     ports:
       - 4000:4000
     depends_on:
@@ -63,9 +64,28 @@ services:
       - ./Caddyfile.dev:/etc/caddy/Caddyfile
       - caddy-data:/data
       - caddy-config:/config
+  
+  s3:
+    container_name: streamlet-s3
+    image: dxflrs/garage:v2.1.0
+    restart: unless-stopped
+    ports:
+      - 3900:3900 # API
+      - 3901:3901 # RPC
+      - 3902:3902 # Web UI
+      - 3903:3903 # Admin
+    networks:
+      - caddy-network
+      - s3-network
+    volumes:
+      - ./garage.toml:/etc/garage.toml
+      - s3-meta:/var/lib/garage/meta
+      - s3-data:/var/lib/garage/data
 
 volumes:
   postgres-data:
+  s3-meta:
+  s3-data:
   caddy-data:
   caddy-config:
 
@@ -73,3 +93,4 @@ volumes:
 networks:
   caddy-network:
   db-network:
+  s3-network:

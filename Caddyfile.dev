@@ -1,3 +1,11 @@
+*.web.garage.localhost {
+	reverse_proxy s3:3902
+}
+
+admin.garage.localhost {
+	reverse_proxy s3:3903
+}
+
 localhost {
     tls internal
 	encode gzip
