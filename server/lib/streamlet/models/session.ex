@@ -9,6 +9,7 @@ defmodule Streamlet.Models.Session do
   schema "sessions" do
     field :token, :string
     field :expires_at, :utc_datetime
+
     belongs_to :user, Models.User
 
     timestamps(type: :utc_datetime)

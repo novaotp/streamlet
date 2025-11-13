@@ -12,6 +12,7 @@ defmodule StreamletWeb.Router do
   scope "/api", StreamletWeb do
     pipe_through :api
 
+    # Auth
     post "/auth/register", AuthController, :register
     post "/auth/login", AuthController, :login
     post "/auth/logout", AuthController, :logout
@@ -19,8 +20,13 @@ defmodule StreamletWeb.Router do
     scope "/" do
       pipe_through :auth
 
-      # User
+      # Users
       get "/users/me", UserController, :me
+
+      # Videos
+      get "/videos", VideoController, :index
+      post "/videos", VideoController, :create
+    end
   end
 
   # Enable LiveDashboard in development

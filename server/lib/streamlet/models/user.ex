@@ -12,7 +12,9 @@ defmodule Streamlet.Models.User do
     field :username, :string, default: nil
     field :email, :string
     field :password, :string, redact: true
+
     has_many :sessions, Models.Session
+    has_many :videos, Models.Video
 
     timestamps(type: :utc_datetime)
   end
@@ -55,9 +57,8 @@ defmodule Streamlet.Models.User do
               where: s.token == ^token,
               preload: [:user]
 
-    session = Repo.one(query)
-
-    session
+    query
+    |> Repo.one
     |> get_by_session
   end
 

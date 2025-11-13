@@ -1,11 +1,17 @@
 <script lang="ts">
     let { data } = $props();
-
-    $inspect(data.user)
 </script>
 
 <svelte:head>
     <title>Streamlet</title>
 </svelte:head>
 
-<p>show videos here</p>
+{#if data.videos === null}
+    <p>error</p>
+{:else}
+    {#each data.videos as video, i (i)}
+        {JSON.stringify(video)}
+    {:else}
+        <p>no videos to show</p>
+    {/each}
+{/if}
