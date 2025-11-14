@@ -2,7 +2,11 @@ defmodule StreamletWeb.Router do
   use StreamletWeb, :router
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug :accepts, ["json", "multipart"]
+  end
+
+  pipeline :auth do
+    plug StreamletWeb.Plugs.Auth
   end
 
   scope "/api", StreamletWeb do
@@ -12,7 +16,12 @@ defmodule StreamletWeb.Router do
     post "/auth/login", AuthController, :login
     post "/auth/logout", AuthController, :logout
 
-    get "/users/me", UserController, :me
+    scope "/" do
+      pipe_through :auth
+
+      # User
+      get "/users/me", UserController, :me
+    end
   end
 
   # Enable LiveDashboard in development
