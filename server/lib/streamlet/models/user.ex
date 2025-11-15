@@ -12,6 +12,8 @@ defmodule Streamlet.Models.User do
     field :username, :string, default: nil
     field :email, :string
     field :password, :string, redact: true
+
+    has_many :channels, Models.Channel
     has_many :sessions, Models.Session
 
     timestamps(type: :utc_datetime)
