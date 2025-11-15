@@ -1,3 +1,7 @@
+s3.garage.localhost, *.s3.garage.localhost {
+	reverse_proxy s3:3900
+}
+
 *.web.garage.localhost {
 	reverse_proxy s3:3902
 }
