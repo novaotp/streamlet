@@ -2,6 +2,7 @@ defmodule StreamletWeb.ChannelController do
   use StreamletWeb, :controller
 
   alias Streamlet.Ecto.Errors
+  alias Streamlet.Helpers.File, as: FileHelper
   alias Streamlet.Models.Channel
 
   def index(conn, _opts) do
@@ -22,8 +23,23 @@ defmodule StreamletWeb.ChannelController do
     })
   end
 
-  def create(%{body_params: body_params} = conn, _opts) do
-    changeset = Channel.changeset(%Channel{}, body_params)
+  def create(%{assigns: assigns} = conn, opts) do
+    %{
+      "name" => name,
+      "handle" => handle,
+      "description" => description,
+      "avatar" => avatar,
+      "banner" => banner
+    } = opts
+
+    changeset = Channel.changeset(%Channel{}, %{
+        user_id: assigns.user.id,
+        name: name,
+        handle: handle,
+        description: description,
+        avatar_key: avatar |> upload_filename |> FileHelper.unique_filename,
+        banner_key: banner |> upload_filename |> FileHelper.unique_filename,
+      })
 
     with true <- changeset.valid?,
          {:ok, channel} <- Channel.create(changeset) do
@@ -31,7 +47,7 @@ defmodule StreamletWeb.ChannelController do
       |> put_status(:created)
       |> json(%{
         message: "Channel created successfully.",
-        data:
+        data: channel
       })
     else
       false ->
@@ -67,4 +83,7 @@ defmodule StreamletWeb.ChannelController do
       message: "Method not implemented yet."
     })
   end
+
+  defp upload_filename("null"), do: nil
+  defp upload_filename(%Plug.Upload{} = upload), do: upload.filename
 end

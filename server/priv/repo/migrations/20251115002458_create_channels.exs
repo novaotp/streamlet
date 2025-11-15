@@ -4,7 +4,7 @@ defmodule Streamlet.Repo.Migrations.CreateChannels do
   def change do
     create table(:channels) do
       add :name, :string
-      add :slug, :string
+      add :handle, :string
       add :description, :text
       add :avatar_key, :string
       add :banner_key, :string
@@ -14,6 +14,6 @@ defmodule Streamlet.Repo.Migrations.CreateChannels do
       timestamps(type: :utc_datetime)
     end
 
-    create unique_index(:channels, [:slug])
+    create unique_index(:channels, [:handle])
   end
 end
