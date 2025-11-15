@@ -12,15 +12,25 @@ defmodule StreamletWeb.Router do
   scope "/api", StreamletWeb do
     pipe_through :api
 
+    # Auth
     post "/auth/register", AuthController, :register
     post "/auth/login", AuthController, :login
     post "/auth/logout", AuthController, :logout
+
+    # Channels
+    get "/channels", ChannelController, :index
+    get "/channels/:id", ChannelController, :show
 
     scope "/" do
       pipe_through :auth
 
       # User
       get "/users/me", UserController, :me
+
+      # Channels
+      post "/channels", ChannelController, :create
+      patch "/channels/:id", ChannelController, :update
+      delete "/channels/:id", ChannelController, :delete
     end
   end
 
