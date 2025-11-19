@@ -29,3 +29,21 @@ docker compose -f docker-compose.dev.yml up
 ```
 
 4. Open your browser at https://localhost.
+
+## Testing
+
+1. Create a `.env.test` file based on `.env.example`.
+
+    > You can generate a secret for `SECRET_KEY_BASE` by running `mix phx.gen.secret` inside `server`.
+
+2. Build the `docker-compose.test.yml` file.
+
+    ```sh
+    docker compose -f docker-compose.test.yml build
+    ```
+
+3. Run the `docker-compose.test.yml` file.
+
+    ```sh
+    docker compose -f docker-compose.test.yml up
+    ```

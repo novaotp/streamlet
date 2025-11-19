@@ -31,8 +31,7 @@ defmodule StreamletWeb.ConnCase do
     end
   end
 
-  setup tags do
-    Streamlet.DataCase.setup_sandbox(tags)
+  setup do
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end
