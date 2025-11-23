@@ -1,4 +1,4 @@
-defmodule Streamlet.DataCase do
+defmodule Streamlet.Support.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -23,7 +23,7 @@ defmodule Streamlet.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Streamlet.DataCase
+      import Streamlet.Support.DataCase
     end
   end
 
