@@ -16,6 +16,8 @@ defmodule Streamlet.Support.DataCase do
 
   use ExUnit.CaseTemplate
 
+  alias Streamlet.Repo
+
   using do
     quote do
       alias Streamlet.Repo
@@ -41,5 +43,23 @@ defmodule Streamlet.Support.DataCase do
         opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
       end)
     end)
+  end
+
+  @doc """
+  A helper that truncates the database.
+
+  ### Examples
+
+      ```elixir
+      setup do
+        truncate!()
+      end
+      ```
+  """
+  def truncate_db!() do
+    Repo.query!("TRUNCATE TABLE sessions RESTART IDENTITY CASCADE")
+    Repo.query!("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
+
+    :ok
   end
 end
