@@ -9,7 +9,7 @@ export async function getUser() {
 
 	if (response.status !== 200) return null;
 
-	const result = await response.json();
+	const result = (await response.json()).data;
 
 	return {
 		email: result.email,
