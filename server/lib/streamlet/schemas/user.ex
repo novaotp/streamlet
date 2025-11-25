@@ -4,7 +4,7 @@ defmodule Streamlet.Schemas.User do
   use Ecto.Schema
 
   import Ecto.Changeset
-  alias Streamlet.Schemas.Session
+  alias Streamlet.Schemas.{Channel,Session}
 
   @type t :: %__MODULE__{
           id: integer(),
@@ -20,7 +20,9 @@ defmodule Streamlet.Schemas.User do
     field :username, :string, default: nil
     field :email, :string
     field :password, :string, redact: true
+
     has_many :sessions, Session
+    has_many :channels, Channel
 
     timestamps(type: :utc_datetime)
   end
