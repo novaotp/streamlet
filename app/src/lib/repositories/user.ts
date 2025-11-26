@@ -1,6 +1,6 @@
 import type { User } from "$lib/types/user";
 
-export async function getUser() {
+export async function getUser(): Promise<User | null> {
 	const response = await fetch("/api/users/me", {
 		headers: {
 			Accept: "application/json"
@@ -12,8 +12,7 @@ export async function getUser() {
 	const result = (await response.json()).data;
 
 	return {
-		email: result.email,
-		username: result.username,
+		...result,
 		inserted_at: new Date(result.inserted_at)
-	} satisfies User;
+	} as User;
 }

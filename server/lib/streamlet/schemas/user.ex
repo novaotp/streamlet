@@ -1,5 +1,5 @@
 defmodule Streamlet.Schemas.User do
-  @derive {Jason.Encoder, only: [:username, :email, :inserted_at]}
+  @derive {Jason.Encoder, only: [:id, :username, :email, :inserted_at]}
 
   use Ecto.Schema
 
