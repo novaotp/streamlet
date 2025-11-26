@@ -68,6 +68,12 @@ defmodule Streamlet.Schemas.Channel do
     |> unique_constraint(:handle)
   end
 
+  @doc false
+  def update_avatar_changeset(channel, attrs) do
+    channel
+    |> cast(attrs, [:avatar_key])
+  end
+
   @spec validate_handle(changeset :: Ecto.Changeset.t()) :: Ecto.Changeset.t()
   defp validate_handle(changeset) do
     changeset

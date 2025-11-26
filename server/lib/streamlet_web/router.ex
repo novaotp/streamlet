@@ -31,6 +31,10 @@ defmodule StreamletWeb.Router do
       post "/channels", ChannelController, :create
       patch "/channels/:id", ChannelController, :update
       delete "/channels/:id", ChannelController, :delete
+
+      # Channel avatar
+      put "/channels/:id/avatar", ChannelController, :update_avatar
+      delete "/channels/:id/avatar", ChannelController, :delete_avatar
     end
   end
 

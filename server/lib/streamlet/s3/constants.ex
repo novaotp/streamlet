@@ -1,5 +1,5 @@
 defmodule Streamlet.S3.Constants do
-  def channel_avatar_bucket(), do: "channel-avatar"
+  def channel_avatars_bucket(), do: "channel-avatars-bucket"
 
   def path(bucket) do
     "#{scheme()}#{bucket}.#{host()}:#{port()}"

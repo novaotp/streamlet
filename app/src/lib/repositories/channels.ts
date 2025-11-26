@@ -97,3 +97,23 @@ export async function updateChannel(id: number, data: UpdateChannelData): Promis
 		...result
 	};
 }
+
+export async function updateChannelAvatar(id: number, avatar: File) {
+    const formData = new FormData();
+    formData.append("avatar", avatar)
+
+	const response = await fetch(`/api/channels/${id}/avatar`, {
+		method: "PUT",
+		body: formData,
+		headers: {
+			Accept: "application/json",
+		}
+	});
+
+	// const result = await response.json();
+
+	// return {
+	// 	success: response.status === 200,
+	// 	...result
+	// };
+}

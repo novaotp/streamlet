@@ -1,11 +1,14 @@
 defmodule StreamletWeb.ChannelController do
   use StreamletWeb, :controller
 
-  alias Streamlet.Contexts.Channels
-  alias Streamlet.Ecto.Errors
-  alias Streamlet.Helpers.File, as: FileHelper
+  alias Streamlet.Contexts.{Channels,ImageStorage}
+  alias Streamlet.S3.Constants
 
-  def index(conn, _params) do
+  def action(conn, _params) do
+    apply(__MODULE__, action_name(conn), [conn, conn.params, conn.assigns.user])
+  end
+
+  def index(conn, _params, _user) do
     conn
     |> put_status(:ok)
     |> json(%{
@@ -13,114 +16,103 @@ defmodule StreamletWeb.ChannelController do
     })
   end
 
-  def show(conn, %{"id" => id}) do
-    case Channels.get_channel(id) do
-      {:ok, channel} ->
-        conn
-        |> put_status(:ok)
-        |> json(%{
+  def show(conn, %{"id" => id}, _user) do
+    with {:ok, channel} <- Channels.get_channel(id) do
+      conn
+      |> put_status(:ok)
+      |> json(%{
+        data: channel
+      })
+    end
+  end
+
+  def create(conn, params, user) do
+    attrs = Map.put(params, "user_id", user.id)
+
+    with {:ok, channel} <- Channels.create_channel(attrs) do
+      conn
+      |> put_status(:created)
+      |> json(%{
+        message: "Channel created successfully.",
+        data: channel
+      })
+    end
+  end
+
+  def update(conn, %{"id" => id}, user) do
+    with {:ok, channel} <- Channels.get_channel(id),
+         :ok <- authorize_update(channel, user),
+         {:ok, updated_channel} <- Channels.update_channel(channel, conn.body_params) do
+      conn
+      |> put_status(:ok)
+      |> json(%{
+        message: "Channel updated successfully.",
+        data: updated_channel
+      })
+    end
+  end
+
+  def update_avatar(conn, %{"avatar" => %Plug.Upload{} = avatar, "id" => id}, user) do
+    with {:ok, channel} <- Channels.get_channel(id),
+         :ok <- authorize_update(channel, user),
+         avatar_key <- build_avatar_key(user.id, avatar.filename),
+         {:ok, _} <- ImageStorage.upload(avatar.path, Constants.channel_avatars_bucket(), avatar_key),
+         {:ok, channel} <- Channels.update_channel_avatar(channel, avatar_key) do
+      conn
+      |> put_status(:ok)
+      |> json(%{
+          message: "Updated channel avatar successfully.",
           data: channel
         })
-
-      {:error, :not_found} ->
-        conn
-        |> put_status(:not_found)
-        |> json(%{
-          message: "Channel not found."
-        })
     end
   end
 
-  def create(conn, params) do
-    attrs = %{params | "user_id" => conn.assigns.user.id}
+  def update_avatar(conn, _params, _user) do
+    conn
+    |> put_status(:unprocessable_entity)
+    |> json(%{
+        message: "Expected an avatar."
+      })
+  end
 
-    case Channels.create_channel(attrs) do
-      {:ok, channel} ->
-        conn
-        |> put_status(:created)
-        |> json(%{
-          message: "Channel created successfully.",
+  def delete(conn, %{"id" => id}, user) do
+    with {:ok, channel} <- Channels.get_channel(id),
+         :ok <- authorize_delete(channel, user),
+         {:ok, _} <- Channels.delete_channel(channel) do
+      conn
+      |> put_status(:ok)
+      |> json(%{
+        message: "Channel deleted successfully."
+      })
+    end
+  end
+
+  def delete_avatar(conn, %{"id" => id}, user) do
+    with {:ok, channel} <- Channels.get_channel(id),
+         :ok <- authorize_delete(channel, user),
+         {:ok, _} <- ImageStorage.delete(Constants.channel_avatars_bucket(), channel.avatar_key),
+         {:ok, channel} <- Channels.update_channel_avatar(channel, nil) do
+      conn
+      |> put_status(:ok)
+      |> json(%{
+          message: "Deleted channel avatar successfully.",
           data: channel
         })
-
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{
-          message: "Invalid data.",
-          errors: Errors.mapper(changeset)
-        })
     end
   end
 
-  def update(conn, %{"id" => id}) do
-    case Channels.update_channel(id, conn.assigns.user.id, conn.body_params) do
-      {:ok, channel} ->
-        conn
-        |> put_status(:ok)
-        |> json(%{
-          message: "Channel updated successfully.",
-          data: channel
-        })
-
-      {:error, :forbidden} ->
-        conn
-        |> put_status(:bad_request)
-        |> json(%{
-          message: "You cannot update a channel if you are not the owner."
-        })
-
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{
-          message: "Invalid data.",
-          errors: Errors.mapper(changeset)
-        })
-    end
+  defp authorize_update(channel, user) do
+    Bodyguard.permit(Channels, :update, user, channel)
   end
 
-  def delete(%{assigns: assigns} = conn, %{"id" => id}) do
-    case Channels.delete_channel(id, assigns.user.id) do
-      {:ok, _} ->
-        conn
-        |> put_status(:ok)
-        |> json(%{
-          message: "Channel deleted successfully."
-        })
-
-      {:error, :forbidden} ->
-        conn
-        |> put_status(:forbidden)
-        |> json(%{
-          message: "You cannot delete a channel if you are not the owner."
-        })
-
-      {:error, changeset} ->
-        conn
-        |> put_status(:unprocessable_entity)
-        |> json(%{
-          message: "Invalid data.",
-          errors: Errors.mapper(changeset)
-        })
-    end
+  defp authorize_delete(channel, user) do
+    Bodyguard.permit(Channels, :delete, user, channel)
   end
 
-  defp maybe_put_upload_key(attrs, params, upload_field, key_field) do
-    case Map.get(params, upload_field) do
-      nil ->
-        attrs
+  defp build_avatar_key(user_id, filename) do
+    ext = Path.extname(filename)
+    uuid = UUID.uuid4()
 
-      upload ->
-        filename =
-          upload
-          |> fetch_upload_filename()
-          |> FileHelper.unique_filename()
-
-        Map.put(attrs, key_field, filename)
-    end
+    "#{user_id}/#{uuid}#{ext}"
   end
-
-  defp fetch_upload_filename(%Plug.Upload{} = upload), do: upload.filename
-  defp fetch_upload_filename(_), do: nil
 end
