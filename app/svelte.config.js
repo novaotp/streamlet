@@ -10,7 +10,8 @@ const config = {
 			$components: "./src/lib/components",
 			$repositories: "./src/lib/repositories",
 			$states: "./src/lib/states",
-			$types: "./src/lib/types"
+			$types: "./src/lib/types",
+			$utils: "./src/lib/utils"
 		}
 	}
 };
