@@ -50,7 +50,8 @@ defmodule Streamlet.MixProject do
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
       {:uuid, "~> 1.1"},
-      {:bcrypt_elixir, "~> 3.0"}
+      {:bcrypt_elixir, "~> 3.0"},
+      {:bodyguard, "~> 2.4"}
     ]
   end
 
