@@ -41,6 +41,8 @@ defmodule StreamletWeb do
 
       import Plug.Conn
 
+      action_fallback StreamletWeb.FallbackController
+
       unquote(verified_routes())
     end
   end
