@@ -1,0 +1,40 @@
+services:
+  server-test:
+    container_name: streamlet-server-test
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    command: [ "./entrypoint.test.sh" ]
+    env_file:
+      - .env.test
+    volumes:
+      - ./server:/app
+    networks:
+      - db-network-test
+    ports:
+      - 4000:4000
+    depends_on:
+      db-test:
+        condition: service_healthy
+
+  db-test:
+    container_name: streamlet-db-test
+    image: postgres:18.0
+    restart: unless-stopped
+    env_file:
+      - .env.test
+    volumes:
+      - postgres-data-test:/var/lib/postgresql
+    networks:
+      - db-network-test
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+
+volumes:
+  postgres-data-test:
+
+networks:
+  db-network-test:

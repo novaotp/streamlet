@@ -1,5 +1,5 @@
 defmodule StreamletWeb.ErrorJSONTest do
-  use StreamletWeb.ConnCase, async: true
+  use StreamletWeb.Support.ConnCase
 
   test "renders 404" do
     assert StreamletWeb.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}

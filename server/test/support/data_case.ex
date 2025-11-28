@@ -1,4 +1,4 @@
-defmodule Streamlet.DataCase do
+defmodule Streamlet.Support.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -16,6 +16,8 @@ defmodule Streamlet.DataCase do
 
   use ExUnit.CaseTemplate
 
+  alias Streamlet.Repo
+
   using do
     quote do
       alias Streamlet.Repo
@@ -23,21 +25,8 @@ defmodule Streamlet.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Streamlet.DataCase
+      import Streamlet.Support.DataCase
     end
-  end
-
-  setup tags do
-    Streamlet.DataCase.setup_sandbox(tags)
-    :ok
-  end
-
-  @doc """
-  Sets up the sandbox based on the test tags.
-  """
-  def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Streamlet.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 
   @doc """
@@ -54,5 +43,23 @@ defmodule Streamlet.DataCase do
         opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
       end)
     end)
+  end
+
+  @doc """
+  A helper that truncates the database.
+
+  ### Examples
+
+      ```elixir
+      setup do
+        truncate!()
+      end
+      ```
+  """
+  def truncate_db!() do
+    Repo.query!("TRUNCATE TABLE sessions RESTART IDENTITY CASCADE")
+    Repo.query!("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
+
+    :ok
   end
 end
