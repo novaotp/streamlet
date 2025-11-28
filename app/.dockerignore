@@ -1,0 +1,21 @@
+# Docker
+Dockerfile.dev
+Dockerfile
+.dockerignore
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Builds and deps
+.svelte-kit
+build
+node_modules
+
+# Extra files
+README.md
+.npmrc
+.prettierignore
+.prettierrc
+eslint.config.js

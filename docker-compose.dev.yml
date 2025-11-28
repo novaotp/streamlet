@@ -7,6 +7,7 @@ services:
     command: [ "./entrypoint.dev.sh" ]
     volumes:
       - ./app:/app
+      - /app/node_modules
     networks:
       - caddy-network
     ports:
